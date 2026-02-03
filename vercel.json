@@ -1,0 +1,15 @@
+{
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist/public",
+  "framework": "vite",
+  "nodeVersion": "20.x",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
