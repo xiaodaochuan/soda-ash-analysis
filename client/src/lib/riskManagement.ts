@@ -15,7 +15,7 @@ export interface TradeSetup {
   takeProfit1: number; // 第一止盈
   takeProfit2: number; // 第二止盈
   takeProfit3: number; // 第三止盈
-  direction: "long" | "short"; // 交易方向
+  direction: "long" | "short" | "neutral"; // 交易方向
 }
 
 export interface RiskMetrics {
