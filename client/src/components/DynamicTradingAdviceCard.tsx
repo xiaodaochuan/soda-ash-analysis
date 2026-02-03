@@ -59,7 +59,7 @@ export function DynamicTradingAdviceCard({
             <h3 className={`text-2xl font-bold ${config.color}`}>{config.label}</h3>
           </div>
         </div>
-        <div className={`px-3 py-1 rounded-full ${config.bgColor} border ${config.borderColor}`}>
+        <div className={`px-3 py-1 rounded-full ${config.bgColor} border ${config.borderColor} whitespace-nowrap`}>
           <p className={`text-sm font-semibold ${config.color}`}>信心度 {advice.confidence}%</p>
         </div>
       </div>
@@ -69,21 +69,27 @@ export function DynamicTradingAdviceCard({
 
       {/* 交易参数 */}
       {entryPrice && stopLoss && takeProfit && (
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <p className="text-xs text-muted-foreground mb-1">入场点位</p>
-            <p className="text-lg font-bold text-foreground">{entryPrice}</p>
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="bg-secondary/50 rounded-lg p-4 min-h-24 flex flex-col justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">入场点位</p>
+              <p className="text-2xl font-bold text-foreground">{entryPrice}</p>
+            </div>
             <p className="text-xs text-muted-foreground">元/吨</p>
           </div>
-          <div className="bg-destructive/10 rounded-lg p-3 border border-destructive/30">
-            <p className="text-xs text-muted-foreground mb-1">止损点</p>
-            <p className="text-lg font-bold text-destructive">{stopLoss}</p>
-            <p className="text-xs text-destructive/70">风险 {Math.abs(stopLoss - entryPrice)} 元/吨</p>
+          <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/30 min-h-24 flex flex-col justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">止损点</p>
+              <p className="text-2xl font-bold text-destructive">{stopLoss}</p>
+            </div>
+            <p className="text-xs text-destructive/70">风险 {Math.abs(stopLoss - entryPrice)}</p>
           </div>
-          <div className="bg-green-400/10 rounded-lg p-3 border border-green-400/30">
-            <p className="text-xs text-muted-foreground mb-1">止盈点</p>
-            <p className="text-lg font-bold text-green-400">{takeProfit}</p>
-            <p className="text-xs text-green-400/70">目标 {Math.abs(takeProfit - entryPrice)} 元/吨</p>
+          <div className="bg-green-400/10 rounded-lg p-4 border border-green-400/30 min-h-24 flex flex-col justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">止盈点</p>
+              <p className="text-2xl font-bold text-green-400">{takeProfit}</p>
+            </div>
+            <p className="text-xs text-green-400/70">目标 {Math.abs(takeProfit - entryPrice)}</p>
           </div>
         </div>
       )}
