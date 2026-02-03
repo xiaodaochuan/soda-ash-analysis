@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { StatCard } from "@/components/StatCard";
 import { ChartCard } from "@/components/ChartCard";
 import { TradingAdviceCard } from "@/components/TradingAdviceCard";
+import { DynamicTradingAdviceCard } from "@/components/DynamicTradingAdviceCard";
 import { RiskManagementTool } from "@/components/RiskManagementTool";
 import { generateTradingAdvices } from "@/lib/tradingAdvice";
+import { generateDynamicAdvices, MarketData } from "@/lib/dynamicAdviceEngine";
 import {
   LineChart,
   Line,
@@ -54,25 +56,61 @@ const priceData = [
 ];
 
 export default function Home() {
-  // 实时价格数据
+  // 实时市场数据
   const [currentPrice, setCurrentPrice] = useState(1207);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // 市场数据状态
+  const [marketData, setMarketData] = useState<MarketData>({
+    currentPrice: 1207,
+    previousPrice: 1207,
+    weeklyProduction: 78.31,
+    totalInventory: 154.42,
+    lightInventory: 82.81,
+    heavyInventory: 71.61,
+    glassOpenRate: 75.64,
+    exportVolume: 0.4,
+  });
+
+  const [previousMarketData, setPreviousMarketData] = useState<MarketData | undefined>();
 
   // 模拟每分钟更新数据
   useEffect(() => {
     const interval = setInterval(() => {
       setIsUpdating(true);
-      // 这里可以集成真实的 API 调用
-      // 目前使用模拟数据：价格在 1200-1210 之间波动
-      const randomChange = (Math.random() - 0.5) * 20;
-      setCurrentPrice((prev) => Math.max(1190, Math.min(1220, prev + randomChange)));
+      // 模拟市场数据变化
+      const randomPriceChange = (Math.random() - 0.5) * 20;
+      const newPrice = Math.max(1190, Math.min(1220, currentPrice + randomPriceChange));
+      
+      const randomInventoryChange = (Math.random() - 0.5) * 2;
+      const newInventory = Math.max(145, Math.min(165, marketData.totalInventory + randomInventoryChange));
+      
+      const randomOpenRateChange = (Math.random() - 0.5) * 3;
+      const newOpenRate = Math.max(65, Math.min(85, marketData.glassOpenRate + randomOpenRateChange));
+
+      setPreviousMarketData(marketData);
+      
+      setCurrentPrice(newPrice);
+      setMarketData(prev => ({
+        ...prev,
+        currentPrice: newPrice,
+        previousPrice: currentPrice,
+        totalInventory: newInventory,
+        lightInventory: newInventory * 0.537,
+        heavyInventory: newInventory * 0.463,
+        glassOpenRate: newOpenRate,
+      }));
+      
       setLastUpdateTime(new Date());
       setIsUpdating(false);
     }, 60000); // 每 60 秒更新一次
 
     return () => clearInterval(interval);
-  }, []);
+  }, [currentPrice, marketData]);
+
+  // 生成动态交易建议
+  const dynamicAdvices = generateDynamicAdvices(marketData, previousMarketData);
 
   // 生成交易建议
   const tradingAdvices = generateTradingAdvices({
@@ -117,50 +155,68 @@ export default function Home() {
               title="主力合约价格"
               value="1207"
               unit="元/吨"
-              change={{ value: 0.25, isPositive: false }}
               description="SA2605 合约"
+              change={{ value: 0.25, isPositive: false }}
             />
             <StatCard
               title="周产量"
               value="78.31"
               unit="万吨"
-              change={{ value: 1.47, isPositive: true }}
               description="环比增加 1.14 万吨"
+              change={{ value: 1.47, isPositive: true }}
             />
             <StatCard
               title="厂家总库存"
               value="154.42"
               unit="万吨"
-              change={{ value: 1.52, isPositive: false }}
               description="较上周增加 2.30 万吨"
+              change={{ value: 1.52, isPositive: false }}
             />
             <StatCard
               title="同比库存"
               value="-16.31"
               unit="%"
-              change={{ value: 16.31, isPositive: true }}
               description="较去年同期下降"
+              change={{ value: 16.31, isPositive: true }}
             />
           </div>
         </section>
 
-        {/* Trading Advice Section */}
+        {/* Dynamic Trading Advice Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-foreground mb-6">交易建议</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {tradingAdvices.map((advice, idx) => (
-              <TradingAdviceCard key={idx} advice={advice} />
-            ))}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-semibold text-foreground">动态交易建议</h2>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>最后更新：{lastUpdateTime.toLocaleTimeString("zh-CN")}</span>
+              {isUpdating && <span className="animate-pulse">更新中...</span>}
+            </div>
           </div>
-          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
-            <p className="text-sm text-destructive font-semibold mb-2">⚠️ 重要风险提示</p>
-            <p className="text-xs text-muted-foreground">
-              本交易建议仅供参考，基于当前公开数据和技术分析生成。期货交易风险极高，可能导致账户全部亏损。请根据自身风险承受能力谨慎决策，设置好止损，不要盲目跟风。建议在交易前咨询专业投资顾问。
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <DynamicTradingAdviceCard
+              timeframe="short"
+              advice={dynamicAdvices.shortTerm}
+              entryPrice={marketData.currentPrice}
+              stopLoss={marketData.currentPrice + 20}
+              takeProfit={marketData.currentPrice - 20}
+            />
+            <DynamicTradingAdviceCard
+              timeframe="mid"
+              advice={dynamicAdvices.midTerm}
+              entryPrice={marketData.currentPrice}
+              stopLoss={marketData.currentPrice + 35}
+              takeProfit={marketData.currentPrice - 40}
+            />
+            <DynamicTradingAdviceCard
+              timeframe="long"
+              advice={dynamicAdvices.longTerm}
+              entryPrice={marketData.currentPrice}
+              stopLoss={marketData.currentPrice + 55}
+              takeProfit={marketData.currentPrice - 60}
+            />
           </div>
         </section>
 
-        {/* Charts Section */}
+        {/* Market Analysis Charts */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-foreground mb-6">市场分析</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -180,7 +236,7 @@ export default function Home() {
                   <YAxis
                     stroke="oklch(0.7 0.02 280)"
                     style={{ fontSize: "12px" }}
-                    domain={[1200, 1225]}
+                    domain={[1195, 1225]}
                   />
                   <Tooltip
                     contentStyle={{
@@ -417,7 +473,7 @@ export default function Home() {
         <footer className="border-t border-border pt-8 pb-12 text-center text-sm text-muted-foreground">
           <p>数据来源：华泰期货研究院、隆众资讯</p>
           <p className="mt-2">本分析仅供参考，不构成投资建议</p>
-          <p className="mt-2 text-xs">更新周期：每周一次 | 最后更新：2026年2月3日</p>
+          <p className="mt-2 text-xs">更新周期：每分钟一次 | 最后更新：{lastUpdateTime.toLocaleString("zh-CN")}</p>
         </footer>
       </main>
     </div>
