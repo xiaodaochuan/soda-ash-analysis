@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { StatCard } from "@/components/StatCard";
 import { ChartCard } from "@/components/ChartCard";
 import { TradingAdviceCard } from "@/components/TradingAdviceCard";
+import { RiskManagementTool } from "@/components/RiskManagementTool";
 import { generateTradingAdvices } from "@/lib/tradingAdvice";
 import {
   LineChart,
@@ -52,6 +54,26 @@ const priceData = [
 ];
 
 export default function Home() {
+  // 实时价格数据
+  const [currentPrice, setCurrentPrice] = useState(1207);
+  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // 模拟每分钟更新数据
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsUpdating(true);
+      // 这里可以集成真实的 API 调用
+      // 目前使用模拟数据：价格在 1200-1210 之间波动
+      const randomChange = (Math.random() - 0.5) * 20;
+      setCurrentPrice((prev) => Math.max(1190, Math.min(1220, prev + randomChange)));
+      setLastUpdateTime(new Date());
+      setIsUpdating(false);
+    }, 60000); // 每 60 秒更新一次
+
+    return () => clearInterval(interval);
+  }, []);
+
   // 生成交易建议
   const tradingAdvices = generateTradingAdvices({
     currentPrice: 1207,
@@ -283,6 +305,18 @@ export default function Home() {
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
+        </section>
+
+        {/* Risk Management Tool */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-semibold text-foreground">风险管理工具</h2>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>最后更新：{lastUpdateTime.toLocaleTimeString("zh-CN")}</span>
+              {isUpdating && <span className="animate-pulse">更新中...</span>}
+            </div>
+          </div>
+          <RiskManagementTool />
         </section>
 
         {/* Analysis Summary */}
