@@ -4,6 +4,7 @@ import { ChartCard } from "@/components/ChartCard";
 import { TradingAdviceCard } from "@/components/TradingAdviceCard";
 import { DynamicTradingAdviceCard } from "@/components/DynamicTradingAdviceCard";
 import { RiskManagementTool } from "@/components/RiskManagementTool";
+import { DailyDirectionIndicator } from "@/components/DailyDirectionIndicator";
 import { generateTradingAdvices } from "@/lib/tradingAdvice";
 import { generateDynamicAdvices, MarketData } from "@/lib/dynamicAdviceEngine";
 import {
@@ -111,6 +112,10 @@ export default function Home() {
 
   // 生成动态交易建议
   const dynamicAdvices = generateDynamicAdvices(marketData, previousMarketData);
+  
+  // 获取当日主要方向（基于日内交易建议）
+  const dailyDirection = dynamicAdvices.shortTerm.direction;
+  const dailyConfidence = dynamicAdvices.shortTerm.confidence;
 
   // 生成交易建议
   const tradingAdvices = generateTradingAdvices({
@@ -147,6 +152,13 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="container py-8">
+        {/* Daily Direction Indicator */}
+        <DailyDirectionIndicator 
+          direction={dailyDirection} 
+          confidence={dailyConfidence}
+          lastUpdate={lastUpdateTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        />
+
         {/* Key Metrics Section */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-foreground mb-6">关键指标</h2>
