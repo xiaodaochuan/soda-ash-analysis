@@ -1,5 +1,7 @@
 import { StatCard } from "@/components/StatCard";
 import { ChartCard } from "@/components/ChartCard";
+import { TradingAdviceCard } from "@/components/TradingAdviceCard";
+import { generateTradingAdvices } from "@/lib/tradingAdvice";
 import {
   LineChart,
   Line,
@@ -50,6 +52,19 @@ const priceData = [
 ];
 
 export default function Home() {
+  // 生成交易建议
+  const tradingAdvices = generateTradingAdvices({
+    currentPrice: 1207,
+    weeklyProduction: 78.31,
+    totalInventory: 154.42,
+    lightInventory: 82.81,
+    heavyInventory: 71.61,
+    glassProductionRate: 75.64,
+    photovoltaicCapacity: 60.87,
+    priceChange: -0.25,
+    inventoryChange: 1.52,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -59,7 +74,7 @@ export default function Home() {
             <div>
               <h1 className="text-3xl font-bold text-foreground">纯碱期货分析看板</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                实时行情 · 基本面分析 · 数据可视化
+                实时行情 · 基本面分析 · 激进交易建议
               </p>
             </div>
             <div className="text-right">
@@ -104,6 +119,22 @@ export default function Home() {
               change={{ value: 16.31, isPositive: true }}
               description="较去年同期下降"
             />
+          </div>
+        </section>
+
+        {/* Trading Advice Section */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-foreground mb-6">交易建议</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {tradingAdvices.map((advice, idx) => (
+              <TradingAdviceCard key={idx} advice={advice} />
+            ))}
+          </div>
+          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <p className="text-sm text-destructive font-semibold mb-2">⚠️ 重要风险提示</p>
+            <p className="text-xs text-muted-foreground">
+              本交易建议仅供参考，基于当前公开数据和技术分析生成。期货交易风险极高，可能导致账户全部亏损。请根据自身风险承受能力谨慎决策，设置好止损，不要盲目跟风。建议在交易前咨询专业投资顾问。
+            </p>
           </div>
         </section>
 
@@ -352,6 +383,7 @@ export default function Home() {
         <footer className="border-t border-border pt-8 pb-12 text-center text-sm text-muted-foreground">
           <p>数据来源：华泰期货研究院、隆众资讯</p>
           <p className="mt-2">本分析仅供参考，不构成投资建议</p>
+          <p className="mt-2 text-xs">更新周期：每周一次 | 最后更新：2026年2月3日</p>
         </footer>
       </main>
     </div>
