@@ -55,11 +55,7 @@ const priceData = [
   { date: "2月2日", price: 1207 },
 ];
 
-interface HomeProps {
-  onLogout?: () => void;
-}
-
-export default function Home({ onLogout }: HomeProps = {}) {
+export default function Home() {
   // 实时市场数据
   const [currentPrice, setCurrentPrice] = useState(1207);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
