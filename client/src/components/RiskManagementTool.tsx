@@ -41,10 +41,12 @@ export function RiskManagementTool() {
             </label>
             <input
               type="number"
-              value={accountInfo.totalCapital}
-              onChange={(e) =>
-                setAccountInfo({ ...accountInfo, totalCapital: parseFloat(e.target.value) || 0 })
-              }
+              value={accountInfo.totalCapital || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setAccountInfo({ ...accountInfo, totalCapital: value === "" ? 0 : parseFloat(value) })
+              }}
+              placeholder="100000"
               className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
