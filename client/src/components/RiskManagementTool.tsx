@@ -40,11 +40,17 @@ export function RiskManagementTool() {
               账户总资金（元）
             </label>
             <input
-              type="number"
-              value={accountInfo.totalCapital || ""}
+              type="text"
+              inputMode="numeric"
+              value={accountInfo.totalCapital === 0 ? "" : accountInfo.totalCapital}
               onChange={(e) => {
                 const value = e.target.value;
-                setAccountInfo({ ...accountInfo, totalCapital: value === "" ? 0 : parseFloat(value) })
+                // 只接受整数
+                if (value === "") {
+                  setAccountInfo({ ...accountInfo, totalCapital: 0 });
+                } else if (/^\d+$/.test(value)) {
+                  setAccountInfo({ ...accountInfo, totalCapital: parseInt(value, 10) });
+                }
               }}
               placeholder="100000"
               className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
