@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "VITE_CONFIG=vite.config.vercel.ts pnpm build",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "nodeVersion": "20.x",
